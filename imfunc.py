@@ -258,12 +258,13 @@ class imFunc(object):
             out[j] = img[j,:] - tmp
         return out
 
-    def unstripping(im, rt, winsize):
+    def unstrip(im, rt, winsize):
         if rt < 0 or rt > 1:
             rt = 0.5
         #take the second order derivative
-        B = np.diff(im, axis=0)
-        C = np.diff(B,axis=0)
+        B = np.gradient(image)#B = np.diff(im, axis=0)#zeros((im.shape[0],im.shape[1]))
+        C = np.gradient(B[0])#C = np.diff(B,axis=0)
+        C = C[0]
         D = np.zeros((C.shape[0],C.shape[1]))
         thresh = rt*np.max(C)
         for r in range(0,C.shape[0]):
