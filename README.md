@@ -6,6 +6,7 @@ A Nanonis data analysis class.
 Python 
 
 After class instantiation, run any of the definitions available
+
 Examples:
 ```
 image = readfile(filein,'Z','forward')
