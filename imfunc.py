@@ -290,7 +290,6 @@ class imFunc(object):
     def readfile(filein,dtype,direction):
         """
         Reads SXM file and returns array, corrects for scan direction
-        ###adopted from https://github.com/underchemist/nanonispy/###
         """
         def parse_scan_header_table(table_list):
             table_processed = []
@@ -311,7 +310,7 @@ class imFunc(object):
                         byte_offset = f.tell()
                         break
                 if byte_offset == -1:
-                    print('error reading file, file possibly correupted')
+                    print('SXM file read error')
             return byte_offset
 
         def read_raw_header(fname,fnamebyt):
@@ -332,9 +331,7 @@ class imFunc(object):
                                     'bias',
                                     'acq_time']
             entries_to_be_inted = ['scan_pixels']
-            entries_to_be_dict = [':DATA_INFO:',
-                                ':Z-CONTROLLER:',
-                                ':Multipass-Config:']
+            entries_to_be_dict = [':DATA_INFO:']
             for i, entry in enumerate(header_entries):
                 if entry in entries_to_be_dict:
                     count = 1
@@ -353,7 +350,8 @@ class imFunc(object):
                 if isinstance(header_dict[key], list):
                     header_dict[key] = np.asarray(header_dict[key], dtype=np.float)
                 else:
-                    header_dict[key] = np.float(header_dict[key])
+                    if header_dict[key] != 'n/a': 
+                        header_dict[key] = np.float(header_dict[key])
             for key in entries_to_be_inted:
                 header_dict[key] = np.asarray(header_dict[key], dtype=np.int)
             return header_dict
@@ -361,7 +359,7 @@ class imFunc(object):
         def load_data(fname,header,byte_offset,dataf,indir):
             channs = list(header['data_info']['Name'])
             nchanns = len(channs)
-            nx, ny = header['scan_pixels']
+            nx, ny = header['scan_pixels'] 
             ndir = indir
             data_dict = dict()
             f = open(fname, 'rb')
@@ -385,11 +383,14 @@ class imFunc(object):
             data = load_data(filein,header,byte,'scan',1)
         channs = list(header['data_info']['Name'])
         if dtype not in channs:
-            print('Channel not listed, please choose from: ' + channs) 
-        if header['scan_dir'] == 'up':
-            return data[dtype][direction]
-        elif header['scan_dir'] == 'down':
-            return np.flipud(data[dtype][direction])
+            dtype = ''
+        try:
+            if header['scan_dir'] == 'up':
+                return data[dtype][direction]
+            elif header['scan_dir'] == 'down':
+                return np.flipud(data[dtype][direction])
+        except:
+            print('SXM file read error')
 
     def otsu(filtered):
         """
