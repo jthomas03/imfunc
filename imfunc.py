@@ -476,3 +476,24 @@ class imFunc(object):
         op_thres = get_optimal_threshold()
         res = regenerate_img(filtered, op_thres)
         return res
+
+    def readspec(fil):
+        data = []
+        with open(fil,'r') as f:
+            idx = 0
+            for i in f:
+                tmp = []
+                if '[DATA]' in i:
+                    idx = 1
+                elif idx == 1:
+                    idx = 2
+                if idx == 2:
+                    out = i.split('\t')
+                    for j in out:
+                        if '\n' in j:
+                            sp = j.split('\n')
+                            tmp.append(sp[0])
+                        else:
+                            tmp.append(j)
+                    data.append(tmp)
+        return data
