@@ -81,7 +81,7 @@ class imFunc(object):
     def image_plot(imagein, title='Nanonis Test Image', cbar=1, imsave = 0, loc = None):
         fig, ax = plt.subplots()
         z_min, z_max = imagein.min(), imagein.max()
-        x, y = np.meshgrid(np.linspace(1, imagein.shape[0], imagein.shape[0]), np.linspace(1, imagein.shape[1], imagein.shape[1]))
+        x, y = np.meshgrid(np.linspace(1, imagein.shape[1], imagein.shape[1]), np.linspace(1, imagein.shape[0], imagein.shape[0]))
         cout = ax.pcolormesh(x, y, imagein, cmap=None, vmin=z_min, vmax=z_max)
         ax.set_title(title)
         ax.axis([x.min(), x.max(), y.min(), y.max()])
@@ -110,7 +110,7 @@ class imFunc(object):
     def planesubtract(imagein):
         fig, ax = plt.subplots()
         z_min, z_max = np.amin(imagein), np.amax(imagein)
-        x, y = np.meshgrid(np.linspace(1, imagein.shape[0], imagein.shape[0]), np.linspace(1, imagein.shape[1], imagein.shape[1]))
+        x, y = np.meshgrid(np.linspace(1, imagein.shape[1], imagein.shape[1]), np.linspace(1, imagein.shape[0], imagein.shape[0]))
         cout = ax.pcolormesh(x, y, imagein, cmap='summer', vmin=z_min, vmax=z_max)
         ax.set_title('pcolormesh')
         ax.axis([x.min(), x.max(), y.min(), y.max()])
