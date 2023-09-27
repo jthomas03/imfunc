@@ -348,12 +348,12 @@ class imFunc(object):
                 header_dict[key] = header_dict[key].split()
             for key in entries_to_be_floated:
                 if isinstance(header_dict[key], list):
-                    header_dict[key] = np.asarray(header_dict[key], dtype=np.float)
+                    header_dict[key] = np.asarray(header_dict[key], dtype=np.float32)
                 else:
                     if header_dict[key] != 'n/a': 
-                        header_dict[key] = np.float(header_dict[key])
+                        header_dict[key] = np.float32(header_dict[key])
             for key in entries_to_be_inted:
-                header_dict[key] = np.asarray(header_dict[key], dtype=np.int)
+                header_dict[key] = np.asarray(header_dict[key], dtype=np.int32)
             return header_dict
 
         def load_data(fname,header,byte_offset,dataf,indir):
@@ -499,3 +499,118 @@ class imFunc(object):
                             tmp.append(j)
                     data.append(tmp)
         return data
+          
+    def linescan(imagein):
+        fig, ax = plt.subplots()
+        z_min, z_max = np.amin(imagein), np.amax(imagein)
+        x, y = np.meshgrid(np.linspace(1, imagein.shape[1], imagein.shape[1]), np.linspace(1, imagein.shape[0], imagein.shape[0]))
+        cout = ax.pcolormesh(x, y, imagein, cmap='summer', vmin=z_min, vmax=z_max)
+        ax.set_title('pcolormesh')
+        ax.axis([x.min(), x.max(), y.min(), y.max()])
+        fig.colorbar(cout, ax=ax)
+        print('Choose two points, click to begin')
+        warnings.filterwarnings("ignore",".*GUI is implemented.*")
+        px = []
+        py = []
+        cnt = 0
+        while cnt == 0:
+            pts = []
+            while len(pts) < 2:
+                print('Select 3 corners with mouse')
+                pts = np.asarray(plt.ginput(2, timeout=0))
+                if len(pts) < 2:
+                    print('Too few points, starting over')
+                    time.sleep(1)  # Wait a second
+            ph = plt.fill(pts[:, 0], pts[:, 1], 'r', lw=2)
+            for p in ph:
+                p.remove()
+            for x, y in pts:
+                px.append(int(round(x,0))-1)
+                py.append(int(round(y,0))-1)
+            cnt = 1
+        plt.close()
+        length = int(np.hypot(px[1]-px[0], py[1]-py[0]))
+        x, y = np.linspace(px[0], px[1], length), np.linspace(py[0], py[1], length)
+        zi = imagein[y.astype(np.int32),x.astype(np.int32)]
+        fig = plt.figure(figsize=(8, 4))
+        ax = fig.add_subplot(1, 2, 1, xticks=[], yticks=[])
+        ax.imshow(imagein)
+        ax.plot([px[0], px[1]], [py[0], py[1]], color='red')
+        ax.invert_yaxis()
+        ax1 = fig.add_subplot(1, 2, 2)
+        ax1.plot(zi)
+        print(px)
+        print(py)
+        plt.show()
+        return zi, px, py
+        
+    def linescan_pts(imagein,px,py):
+        length = int(np.hypot(px[1]-px[0], py[1]-py[0]))
+        x, y = np.linspace(px[0], px[1], length), np.linspace(py[0], py[1], length)
+        zi = imagein[y.astype(np.int32),x.astype(np.int32)]
+        return zi
+    
+    def imcal(image,latt,size):
+        f = image
+        rng = (f.shape[0]+1)/2
+        zeropadded = np.array(f.shape) * 1
+        f_hatp = np.fft.fftshift(np.fft.fft2(f, zeropadded)) / f.size
+        f_hat = np.log10(abs(f_hatp**2))
+        fig, ax = plt.subplots(figsize=(4,4))
+        z_min, z_max = f_hat.min(), f_hat.max()#abs(F2).max()
+        y, x = np.meshgrid(np.linspace(1, f_hatp.shape[1], f_hatp.shape[1]), np.linspace(1, f_hatp.shape[0], f_hatp.shape[0]))
+        cout = ax.pcolormesh(y, x, f_hat, cmap='gray', vmin=z_min, vmax=z_max)
+        print('Please define two points, click to begin')
+        warnings.filterwarnings("ignore",".*GUI is implemented.*")
+        p13 = []
+        cnt = 0
+        while cnt == 0:
+            pts = []
+            while len(pts) < 2:
+                print('Select 2 maxima with mouse')
+                pts = np.asarray(plt.ginput(2, timeout=0))
+                if len(pts) < 2:
+                    print('Too few points, starting over')
+                    time.sleep(1)  # Wait a second
+            ph = plt.fill(pts[:, 0], pts[:, 1], 'r', lw=2)
+            for p in ph:
+                p.remove()
+            for x, y in pts:
+                p13.append([int(round(x,0)),int(round(y,0))])
+            cnt = 1
+        plt.close()
+        p1 = np.array(p13[0])
+        p2 = np.array(p13[1])
+        def localmax(point,image):
+            exx = int(point[0])
+            eyy = int(point[1])
+            tmpx = exx
+            tmpy = eyy
+            maxij = image[exx][eyy]
+            out = []
+            for r in range((exx-2),(exx+2),1):
+                for c in range((eyy-2),(eyy+2),1):
+                    if image[c][r] > maxij:
+                        maxij = image[c][r]
+                        tmpx = r
+                        tmpy = c
+            out.append(tmpx+1)
+            out.append(tmpy+1)
+            return out
+        p1m = localmax(p1,f_hat)
+        p2m = localmax(p2,f_hat)
+        fig, ax = plt.subplots(figsize=(4,4))
+        z_min, z_max = f_hat.min(), f_hat.max()
+        y, x = np.meshgrid(np.linspace(1, f_hatp.shape[1], f_hatp.shape[1]), np.linspace(1, f_hatp.shape[0], f_hatp.shape[0]))
+        cout = ax.pcolormesh(y, x, f_hat, cmap='gray', vmin=z_min, vmax=z_max)
+        ax.scatter(p1m[0], p1m[1], s=25, c='blue', marker='o')
+        ax.scatter(p2m[0], p2m[1], s=25, c='blue', marker='o')
+        ax.set_title('pcolormesh')
+        plt.show()
+        R = size*(1/(latt*(np.cos(np.deg2rad(30)))))
+        x1, y1 = p1m[0]-rng, p1m[1]-rng
+        x2, y2 = p2m[0]-rng, p2m[1]-rng
+        ycorr = (np.sqrt(((x1**2*R**2)-(R**2*x2**2))/((y2**2*x1**2)-(x2**2*y1**2))))
+        xcorr = (np.sqrt((R**2)-(ycorr*y1)**2))/x1
+        xcor, ycor = abs(1/xcorr), abs(1/ycorr)
+        print('new size of image in x = '+str(size*xcor)+' and new size in y = ' + str(size*ycor))
