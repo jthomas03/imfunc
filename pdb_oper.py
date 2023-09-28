@@ -4,12 +4,12 @@
 
 from imMF.definitions import get_pdb, get_pov
 
-dpath = '/Users/jthomas/Repo/ML/xyz/'
-spath = '/Users/jthomas/GitRepo/imMF/imfunc_manip/'
+dpath = 'path1'
+spath = 'path2'
 
-fil = "WS2_jz.pdb"
+fil = "your.pdb"
 #filout = "WS2_testing.pdb"
-filout = "WS2_testing.pov"
+filout = "youfile_out.pov"
 
 #get_pdb(fil,filout,dpath,spath)
 get_pov(fil,filout,dpath,spath)
