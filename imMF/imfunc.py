@@ -13,6 +13,22 @@ from scipy import sparse
 from scipy.sparse.linalg import spsolve
 import time
 
+def smooth(x,window_len=11,window='flat'):  
+    if window_len<3:
+        return x
+    s=np.r_[x[window_len-1:0:-1],x,x[-1:-window_len:-1]]
+    if window == 'flat': 
+        w=np.ones(window_len,'d')
+    else:
+        w=eval('np.'+window+'(window_len)')
+
+    y=np.convolve(w/w.sum(),s,mode='valid')
+    if window_len % 2:
+        test = y[int(window_len/2):-int(window_len/2)] 
+    else:
+        test = y[int(window_len/2-1):-int(window_len/2)] 
+    return test
+
 class imFunc(object):
     """This class is used to call a variety of image processing definitions.
 
@@ -20,6 +36,27 @@ class imFunc(object):
 
     def __init__(self):
         """Constructor"""
+        
+    def imrescale(im,amin=0,amax=255):
+        tmin = im.min()
+        tmax = im.max()
+        out = np.zeros([im.shape[0],im.shape[1]]).astype('uint8')
+        for i in range(0,im.shape[0]):
+            for j in range(0,im.shape[1]):
+                out[i][j] = int((((im[i][j] - tmin)*amax)/(tmax-tmin))+amin)
+        return out
+    
+    def smooth2dx(im, window_len = 3, window='flat'):
+        out = np.zeros((im.shape[0], im.shape[1]))
+        for i in range(0,out.shape[0]):
+            out[i][:] = smooth(im[i][:],window_len,window)
+        return out
+
+    def smooth2dy(im, window_len = 3, window='flat'):
+        out = np.zeros((im.shape[0], im.shape[1]))
+        for i in range(0,out.shape[0]):
+            out[i][:] = smooth(im[i][:],window_len,window)
+        return out
 
     def sobel_edge_detection(image, filter, convert_to_degree=False, verbose=False):
         def convolution(image, kernel, average=False):
