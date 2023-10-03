@@ -299,8 +299,8 @@ class imFunc(object):
         if rt < 0 or rt > 1:
             rt = 0.5
         #take the second order derivative
-        B = np.gradient(image)#B = np.diff(im, axis=0)#zeros((im.shape[0],im.shape[1]))
-        C = np.gradient(B[0])#C = np.diff(B,axis=0)
+        B = np.gradient(im)
+        C = np.gradient(B[0])
         C = C[0]
         D = np.zeros((C.shape[0],C.shape[1]))
         thresh = rt*np.max(C)
