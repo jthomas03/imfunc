@@ -81,7 +81,7 @@ class emap(object):
         for atomtype in atype:
             otype.append('#declare '+str(atomtype)+' = texture{pigment {rgb<1,1,1>} finish { phong 0.7 ambient 0.1 diffuse 0.8 } }')
             otype.append('#declare '+str(atomtype)+'ratio = 1;')
-        outfile = self.header+self.header+self.subheader+otype+self.subheader2+atoms+bonds+self.footer
+        outfile = self.header+self.subheader+otype+self.subheader2+atoms+bonds+self.footer
         with open(fil, "w") as text_file:
             for i in outfile:
                 text_file.write(i + '\n')
