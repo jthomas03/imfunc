@@ -668,12 +668,13 @@ class imFunc(object):
         exx = []
         eyy = []
         ezz = []
+        image = np.flipud(image)
         sizex = image.shape[1]
         sizey = image.shape[0]
         imsize = sizex*sizey
         #[row][column]
-        for i in range(0,image.shape[1]):
-            for j in range(0,image.shape[0]):
+        for j in range(0,image.shape[0]):
+            for i in range(0,image.shape[1]):
                 exx.append(i)
                 eyy.append(j)
                 ezz.append(image[j][i])
