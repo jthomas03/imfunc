@@ -663,3 +663,23 @@ class imFunc(object):
             fil.write('Bias (V)'+', '+'dI/dV (arb. units)'+'\n')
             for k in range(0,cnt):
                 fil.write(str(tmp[0][k])+', '+str(tmp[1][k])+'\n')
+                
+    def im_to_xyz_csv(image,path,filname):
+        exx = []
+        eyy = []
+        ezz = []
+        sizex = image.shape[1]
+        sizey = image.shape[0]
+        imsize = sizex*sizey
+        #[row][column]
+        for i in range(0,image.shape[1]):
+            for j in range(0,image.shape[0]):
+                exx.append(i)
+                eyy.append(j)
+                ezz.append(image[j][i])
+        with open(path+filname+'.csv', "w") as fil:
+            fil.write('X'+', '+'Y'+', '+'Z'+'\n')
+            for k in range(0,imsize):
+                xx = exx[k]+1
+                yy = eyy[k]+1
+                fil.write(str(xx)+', '+str(yy)+', '+str(ezz[k])+'\n')
