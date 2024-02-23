@@ -651,3 +651,15 @@ class imFunc(object):
         xcorr = (np.sqrt((R**2)-(ycorr*y1)**2))/x1
         xcor, ycor = abs(1/xcorr), abs(1/ycorr)
         print('new size of image in x = '+str(size*xcor)+' and new size in y = ' + str(size*ycor))
+        
+    def spec_to_csv(di,dv,path,filname):
+        tmp = []
+        tmp.append(dv)
+        tmp.append(di)
+        cnt = 0
+        for i in dv:
+            cnt += 1
+        with open(path+filname+'.csv', "w") as fil:
+            fil.write('Bias (V)'+', '+'dI/dV (arb. units)'+'\n')
+            for k in range(0,cnt):
+                fil.write(str(tmp[0][k])+', '+str(tmp[1][k])+'\n')
